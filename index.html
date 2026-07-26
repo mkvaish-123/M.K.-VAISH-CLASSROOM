@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M. K. VAISH CLASSROOM MONITOR - CLASS 10</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-green: #22c55e;
+            --neon-red: #ff0055;
+            --neon-yellow: #ffb700;
+            --bg-dark: #030712;
+            --card-bg: rgba(15, 23, 42, 0.95);
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.08) 0%, transparent 80%),
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 25px 25px, 25px 25px;
+            color: #ffffff;
+            margin: 0; padding: 15px;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+        }
+
+        .robot-container {
+            width: 100%; max-width: 800px;
+            background: var(--card-bg);
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.25);
+            border-radius: 20px; padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-box { text-align: center; margin-bottom: 20px; }
+
+        h1.main-title {
+            color: var(--neon-blue); font-size: 26px; margin: 0 0 5px 0;
+            text-shadow: 0 0 12px var(--neon-blue); text-transform: uppercase; letter-spacing: 1.5px;
+        }
+
+        .class-badge {
+            font-size: 24px; font-weight: 900; letter-spacing: 3px; margin: 5px 0;
+            background: linear-gradient(90deg, #00f3ff, #ff0055);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .sub-title { font-size: 13px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
+
+        .status-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 12px 18px; border-radius: 10px; margin-bottom: 15px; font-size: 14px;
+        }
+
+        .status-indicator { display: flex; align-items: center; gap: 8px; font-weight: bold; }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; background-color: #64748b; }
+        .dot.active { background-color: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+        .dot.warning { background-color: var(--neon-red); box-shadow: 0 0 10px var(--neon-red); animation: blink 0.5s infinite alternate; }
+
+        @keyframes blink { from { opacity: 1; } to { opacity: 0.2; } }
+
+        .btn-group { display: flex; gap: 15px; justify-content: center; margin: 20px 0; }
+
+        button {
+            padding: 12px 28px; font-size: 15px; font-weight: bold; border: none; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .btn-start { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+        .btn-stop { background: var(--neon-red); color: #fff; box-shadow: 0 0 15px rgba(255, 0, 85, 0.4); }
+
+        .timer-display {
+            font-size: 48px; font-weight: 900; color: var(--neon-yellow);
+            text-align: center; text-shadow: 0 0 15px var(--neon-yellow); margin: 5px 0;
+        }
+
+        .card-box {
+            background: rgba(0, 0, 0, 0.7); border-left: 4px solid var(--neon-blue);
+            border-radius: 10px; padding: 18px; margin-top: 15px;
+        }
+
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+
+        .option-btn {
+            background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue);
+            color: #fff; padding: 12px; border-radius: 8px; font-size: 15px;
+            text-align: left; cursor: pointer; transition: all 0.2s;
+        }
+
+        .option-btn:hover { background: var(--neon-blue); color: #000; font-weight: bold; }
+
+        .user-answer-box {
+            background: rgba(0, 243, 255, 0.05); border: 1px dashed var(--neon-blue);
+            border-radius: 8px; padding: 12px; margin-top: 15px; color: #38bdf8;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .live-speech { font-size: 16px; font-weight: bold; color: #22c55e; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 5px; }
+
+        .manual-input-group { display: flex; gap: 8px; margin-top: 5px; }
+        .manual-input-group input { flex: 1; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--neon-blue); background: rgba(0,0,0,0.5); color: #fff; font-size: 14px; text-transform: uppercase; }
+        .manual-input-group button { padding: 8px 18px; font-size: 13px; background: var(--neon-green); color: #000; }
+
+        footer {
+            text-align: center; margin-top: 25px; padding-top: 12px;
+            border-top: 1px solid rgba(0, 243, 255, 0.2); font-size: 14px;
+            letter-spacing: 2px; color: var(--neon-blue); font-weight: bold; text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div class="robot-container">
+    <div class="header-box">
+        <h1 class="main-title">M. K. VAISH CLASSROOM MONITOR</h1>
+        <div class="class-badge">CLASS 10</div>
+        <div class="sub-title">50 RANDOM MCQ QUIZ SYSTEM (MATH & SST)</div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-indicator">
+            <div id="statusDot" class="dot"></div>
+            <span id="statusLabel">SYSTEM: READY</span>
+        </div>
+        <div>NOISE LIMIT: <span style="color: var(--neon-red); font-weight:bold;">10 dB</span></div>
+        <div>NOISE LEVEL: <span id="dbNum" style="color: var(--neon-blue); font-weight:bold; font-size:18px;">0</span> dB</div>
+    </div>
+
+    <div style="background: rgba(0,0,0,0.5); border-radius:10px; padding:8px;">
+        <canvas id="noiseChart" height="80"></canvas>
+    </div>
+
+    <div class="btn-group">
+        <button id="startBtn" class="btn-start" onclick="initRobot()">START MONITORING</button>
+        <button id="stopBtn" class="btn-stop" onclick="stopRobot()" disabled>STOP</button>
+    </div>
+
+    <div class="timer-display" id="timer">45</div>
+
+    <div class="card-box">
+        <div style="font-size:12px; color:var(--neon-blue); font-weight:bold; text-transform:uppercase;" id="subjTag">SYSTEM STATUS</div>
+        <div style="font-size:18px; margin-top:5px; line-height:1.4;" id="qBox">Press 'START MONITORING' to activate 10 dB noise monitoring.</div>
+        
+        <div class="options-grid" id="optionsContainer" style="display:none;">
+            <button class="option-btn" onclick="submitOption('A')"><b>A)</b> <span id="optA"></span></button>
+            <button class="option-btn" onclick="submitOption('B')"><b>B)</b> <span id="optB"></span></button>
+            <button class="option-btn" onclick="submitOption('C')"><b>C)</b> <span id="optC"></span></button>
+            <button class="option-btn" onclick="submitOption('D')"><b>D)</b> <span id="optD"></span></button>
+        </div>
+
+        <div class="user-answer-box">
+            <div>🎙️ <b>VOICE DETECTOR:</b> <span id="userAnswerText" class="live-speech">Listening for Option (A, B, C, D)...</span></div>
+            <div class="manual-input-group">
+                <input type="text" id="textAnswerInput" placeholder="Type option A, B, C, or D..." maxlength="2">
+                <button onclick="submitManualAnswer()">SUBMIT</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>DEVELOPED BY KARTIK VAISH | M. K. VAISH CLASSES</footer>
+</div>
+
+<script>
+    // 50 Master Questions Bank (25 Math + 25 SST)
+    const masterQuestionBank = [
+        // --- 25 MATH QUESTIONS ---
+        { sub: "MATH - REAL NUMBERS", q: "√2 किस प्रकार की संख्या है?", correctAns: "अपरिमेय संख्या", wrongOpts: ["परिमेय संख्या", "पूर्णांक संख्या", "प्राकृत संख्या"] },
+        { sub: "MATH - REAL NUMBERS", q: "पाई (π) किस प्रकार की संख्या है?", correctAns: "अपरिमेय संख्या", wrongOpts: ["परिमेय संख्या", "पूर्णांक", "विषम संख्या"] },
+        { sub: "MATH - REAL NUMBERS", q: "सबसे छोटी अभाज्य (Prime) संख्या कौन सी है?", correctAns: "2", wrongOpts: ["1", "3", "0"] },
+        { sub: "MATH - REAL NUMBERS", q: "दो लगातार सम संख्याओं का HCF क्या होगा?", correctAns: "2", wrongOpts: ["1", "0", "4"] },
+        { sub: "MATH - REAL NUMBERS", q: "संख्या 1.333... किस प्रकार की संख्या है?", correctAns: "परिमेय संख्या", wrongOpts: ["अपरिमेय संख्या", "अपूर्णांक", "काल्पनिक"] },
+        
+        { sub: "MATH - POLYNOMIALS", q: "द्विघात बहुपद (Quadratic Polynomial) के अधिकतम कितने शून्यक होते हैं?", correctAns: "2", wrongOpts: ["1", "3", "अनंत"] },
+        { sub: "MATH - POLYNOMIALS", q: "रैखिक बहुपद (Linear Polynomial) की घात (Degree) कितनी होती है?", correctAns: "1", wrongOpts: ["2", "0", "3"] },
+        { sub: "MATH - POLYNOMIALS", q: "बहुपद x² - 4 के शून्यक क्या होंगे?", correctAns: "2 और -2", wrongOpts: ["4 और -4", "2 और 2", "0 और 4"] },
+
+        { sub: "MATH - PAIR OF LINEAR EQ", q: "यदि रेखाएं संपाती (Coincident) हों, तो कितने हल होंगे?", correctAns: "अपरिमित रूप से अनेक हल", wrongOpts: ["एक अद्वितीय हल", "कोई हल नहीं", "दो हल"] },
+        { sub: "MATH - PAIR OF LINEAR EQ", q: "यदि रेखाएं समांतर (Parallel) हों, तो समीकरण निकाय के कितने हल होंगे?", correctAns: "कोई हल नहीं", wrongOpts: ["एक हल", "अनेक हल", "दो हल"] },
+
+        { sub: "MATH - ARITHMETIC PROGRESSION", q: "AP: 2, 7, 12... का सार्व अंतर (Common Difference) क्या है?", correctAns: "5", wrongOpts: ["2", "7", "10"] },
+        { sub: "MATH - ARITHMETIC PROGRESSION", q: "प्रथम 10 प्राकृत संख्याओं का योग क्या होगा?", correctAns: "55", wrongOpts: ["50", "45", "100"] },
+
+        { sub: "MATH - TRIGONOMETRY", q: "Sin 90° का मान क्या होता है?", correctAns: "1", wrongOpts: ["0", "1/2", "अनंत (∞)"] },
+        { sub: "MATH - TRIGONOMETRY", q: "Cos 0° का मान क्या होता है?", correctAns: "1", wrongOpts: ["0", "1/√2", "1/2"] },
+        { sub: "MATH - TRIGONOMETRY", q: "Tan 45° का मान क्या होता है?", correctAns: "1", wrongOpts: ["0", "√3", "1/√3"] },
+        { sub: "MATH - TRIGONOMETRY", q: "Sin²θ + Cos²θ का मान क्या होता है?", correctAns: "1", wrongOpts: ["0", "2", "-1"] },
+        { sub: "MATH - TRIGONOMETRY", q: "Sec 60° का मान क्या होता है?", correctAns: "2", wrongOpts: ["1/2", "1", "√3"] },
+        { sub: "MATH - TRIGONOMETRY", q: "Sin 30° का मान क्या होता है?", correctAns: "1/2", wrongOpts: ["√3/2", "1", "0"] },
+
+        { sub: "MATH - COORDINATE GEOMETRY", q: "मूल बिंदु (Origin) के निर्देशांक क्या होते हैं?", correctAns: "(0, 0)", wrongOpts: ["(1, 1)", "(0, 1)", "(1, 0)"] },
+        { sub: "MATH - COORDINATE GEOMETRY", q: "बिंदु (-3, 5) किस चतुर्थांश (Quadrant) में स्थित है?", correctAns: "द्वितीय चतुर्थांश", wrongOpts: ["प्रथम चतुर्थांश", "तृतीय चतुर्थांश", "चतुर्थ चतुर्थांश"] },
+
+        { sub: "MATH - STATISTICS", q: "2, 4, 6 का समांतर माध्य क्या होगा?", correctAns: "4", wrongOpts: ["2", "3", "6"] },
+        { sub: "MATH - STATISTICS", q: "आंकड़ों 3, 5, 5, 7, 8 का बहुलक (Mode) क्या है?", correctAns: "5", wrongOpts: ["3", "7", "8"] },
+        { sub: "MATH - STATISTICS", q: "संचयी बारंबारता वक्र को क्या कहा जाता है?", correctAns: "तोरण (Ogive)", wrongOpts: ["आयतन चित्र", "दंड आलेख", "पाई चार्ट"] },
+
+        { sub: "MATH - PROBABILITY", q: "किसी निश्चित घटना की प्रायिकता (Probability) क्या होती है?", correctAns: "1", wrongOpts: ["0", "0.5", "अनंत"] },
+        { sub: "MATH - PROBABILITY", q: "एक सिक्के को उछालने पर 'चित' (Head) आने की प्रायिकता क्या है?", correctAns: "1/2", wrongOpts: ["1", "1/4", "0"] },
+
+
+        // --- 25 SST QUESTIONS ---
+        { sub: "SST HISTORY", q: "जलियांवाला बाग हत्याकांड किस वर्ष हुआ था?", correctAns: "13 अप्रैल 1919", wrongOpts: ["10 मार्च 1920", "15 अगस्त 1947", "26 जनवरी 1930"] },
+        { sub: "SST HISTORY", q: "जलियांवाला बाग हत्याकांड किस शहर में हुआ था?", correctAns: "अमृतसर", wrongOpts: ["दिल्ली", "लाहौर", "लखनऊ"] },
+        { sub: "SST HISTORY", q: "महात्मा गांधी का दांडी मार्च किस वर्ष शुरू हुआ था?", correctAns: "1930", wrongOpts: ["1920", "1942", "1919"] },
+        { sub: "SST HISTORY", q: "साइमन कमीशन भारत किस वर्ष आया था?", correctAns: "1928", wrongOpts: ["1930", "1919", "1942"] },
+        { sub: "SST HISTORY", q: "हिन्द स्वराज पुस्तक के लेखक कौन थे?", correctAns: "महात्मा गांधी", wrongOpts: ["जवाहरलाल नेहरू", "सुभाष चंद्र बोस", "बाल गंगाधर तिलक"] },
+        { sub: "SST HISTORY", q: "चौरी-चौरा कांड किस राज्य में हुआ था?", correctAns: "उत्तर प्रदेश", wrongOpts: ["बिहार", "पंजाब", "गुजरात"] },
+        { sub: "SST HISTORY", q: "पूना पैक्ट किनके बीच हस्ताक्षरित हुआ था?", correctAns: "गांधी और आंबेडकर", wrongOpts: ["गांधी और नेहरू", "गांधी और जिन्ना", "नेहरू और पटेल"] },
+
+        { sub: "SST GEOGRAPHY", q: "काली मिट्टी किस फसल के लिए सबसे उपयुक्त मानी जाती है?", correctAns: "कपास", wrongOpts: ["गेहूँ", "चाय", "चावल"] },
+        { sub: "SST GEOGRAPHY", q: "भारत में चाय का सबसे बड़ा उत्पादक राज्य कौन सा है?", correctAns: "असम", wrongOpts: ["पश्चिम बंगाल", "केरल", "तमिलनाडु"] },
+        { sub: "SST GEOGRAPHY", q: "चिपको आंदोलन किस राज्य में शुरू हुआ था?", correctAns: "उत्तराखंड", wrongOpts: ["उत्तर प्रदेश", "राजस्थान", "मध्य प्रदेश"] },
+        { sub: "SST GEOGRAPHY", q: "हीराकुंड बांध किस नदी पर निर्मित है?", correctAns: "महानदी", wrongOpts: ["गंगा", "नर्मदा", "सतलुज"] },
+        { sub: "SST GEOGRAPHY", q: "भाखड़ा नांगल परियोजना किस नदी पर स्थित है?", correctAns: "सतलुज", wrongOpts: ["व्यास", "रावी", "गंगा"] },
+        { sub: "SST GEOGRAPHY", q: "किस मिट्टी को 'रेगुर मिट्टी' भी कहा जाता है?", correctAns: "काली मिट्टी", wrongOpts: ["जलोढ़ मिट्टी", "लाल मिट्टी", "लेटराइट मिट्टी"] },
+
+        { sub: "SST CIVICS", q: "बेल्जियम की राजधानी क्या है?", correctAns: "ब्रुसेल्स", wrongOpts: ["कोलंबो", "पेरिस", "लंदन"] },
+        { sub: "SST CIVICS", q: "श्रीलंका किस वर्ष एक स्वतंत्र राष्ट्र बना?", correctAns: "1948", wrongOpts: ["1947", "1950", "1962"] },
+        { sub: "SST CIVICS", q: "भारत में समवर्ती सूची के विषयों पर कानून बनाने का अधिकार किसे है?", correctAns: "केंद्र और राज्य दोनों", wrongOpts: ["केवल केंद्र", "केवल राज्य", "केवल न्यायपालिका"] },
+        { sub: "SST CIVICS", q: "भारत की दुहाई देने वाली शासन व्यवस्था किस प्रकार की है?", correctAns: "संघीय (Federal)", wrongOpts: ["एकात्मक", "तानाशाही", "राजशाही"] },
+        { sub: "SST CIVICS", q: "संविधान की 8वीं अनुसूची में कितनी भाषाओं को मान्यता दी गई है?", correctAns: "22", wrongOpts: ["18", "20", "25"] },
+        { sub: "SST CIVICS", q: "पंचायती राज संस्थाओं में महिलाओं के लिए कितने प्रतिशत आरक्षण है?", correctAns: "33%", wrongOpts: ["50%", "25%", "10%"] },
+
+        { sub: "SST ECONOMICS", q: "कृषि किस क्षेत्रक (Sector) के अंतर्गत आती है?", correctAns: "प्राथमिक क्षेत्रक", wrongOpts: ["द्वितीयक क्षेत्रक", "तृतीयक क्षेत्रक", "सेवा क्षेत्रक"] },
+        { sub: "SST ECONOMICS", q: "बैंकिंग और परिवहन किस क्षेत्रक के अंतर्गत आते हैं?", correctAns: "तृतीयक क्षेत्रक (सेवा)", wrongOpts: ["प्राथमिक क्षेत्रक", "द्वितीयक क्षेत्रक", "सूचना क्षेत्रक"] },
+        { sub: "SST ECONOMICS", q: "भारत का केंद्रीय बैंक कौन सा है?", correctAns: "भारतीय रिजर्व बैंक (RBI)", wrongOpts: ["भारतीय स्टेट बैंक (SBI)", "पंजाब नेशनल बैंक", "बैंक ऑफ बड़ौदा"] },
+        { sub: "SST ECONOMICS", q: "विश्व व्यापार संगठन (WTO) का मुख्यालय कहाँ स्थित है?", correctAns: "जेनेवा", wrongOpts: ["न्यूयॉर्क", "पेरिस", "लंदन"] },
+        { sub: "SST ECONOMICS", q: "भारत में करेंसी नोट कौन जारी करता है?", correctAns: "भारतीय रिजर्व बैंक", wrongOpts: ["वित्त मंत्रालय", "गृह मंत्रालय", "स्टेट बैंक"] },
+        { sub: "SST ECONOMICS", q: "मानव विकास सूचकांक (HDI) कौन जारी करता है?", correctAns: "UNDP", wrongOpts: ["UNESCO", "WHO", "विश्व बैंक"] }
+    ];
+
+    let lastQuestionIndex = -1;
+
+    // Fully Random Generator & Options Shuffler
+    function getRandomQuestion() {
+        let randIdx;
+        do {
+            randIdx = Math.floor(Math.random() * masterQuestionBank.length);
+        } while (randIdx === lastQuestionIndex && masterQuestionBank.length > 1);
+        
+        lastQuestionIndex = randIdx;
+        const rawQ = masterQuestionBank[randIdx];
+
+        // Combine and Shuffle Options
+        let allOpts = [rawQ.correctAns, ...rawQ.wrongOpts];
+        allOpts.sort(() => Math.random() - 0.5);
+
+        const keys = ["A", "B", "C", "D"];
+        let optsObj = {};
+        let correctKey = "";
+
+        allOpts.forEach((optText, index) => {
+            const key = keys[index];
+            optsObj[key] = optText;
+            if (optText === rawQ.correctAns) {
+                correctKey = key;
+            }
+        });
+
+        return {
+            sub: rawQ.sub,
+            q: rawQ.q,
+            opts: optsObj,
+            correct: correctKey
+        };
+    }
+
+    let audioCtx, analyser, micStream, animationId;
+    let isMonitoring = false, isTriggered = false;
+    let timerInt, currentQObj = null, recognition;
+
+    // Fast Voice Recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'hi-IN';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            document.getElementById('userAnswerText').innerText = transcript;
+            checkOptionVoice(transcript);
+        };
+
+        recognition.onerror = () => {
+            if (isTriggered && recognition) try { recognition.start(); } catch(e){}
+        };
+    }
+
+    // Chart Setup
+    const ctx = document.getElementById('noiseChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array(20).fill(''),
+            datasets: [{
+                label: 'dB', data: Array(20).fill(0),
+                borderColor: '#00f3ff', backgroundColor: 'rgba(0, 243, 255, 0.1)',
+                fill: true, tension: 0.3, pointRadius: 0
+            }]
+        },
+        options: { animation: false, scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+    });
+
+    async function initRobot() {
+        try {
+            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            const source = audioCtx.createMediaStreamSource(micStream);
+            analyser.fftSize = 128;
+            source.connect(analyser);
+
+            isMonitoring = true; isTriggered = false;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            
+            setStatus('active', 'MONITORING: ACTIVE');
+            monitorAudio();
+        } catch (e) {
+            alert("Microphone Access Error: " + e.message);
+        }
+    }
+
+    function stopRobot() {
+        isMonitoring = false;
+        cancelAnimationFrame(animationId);
+        clearInterval(timerInt);
+        window.speechSynthesis.cancel();
+        if (recognition) try { recognition.stop(); } catch(e){}
+
+        if (micStream) micStream.getTracks().forEach(t => t.stop());
+        if (audioCtx) audioCtx.close();
+
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('optionsContainer').style.display = 'none';
+        setStatus('offline', 'SYSTEM: OFFLINE');
+    }
+
+    function monitorAudio() {
+        if (!isMonitoring) return;
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+        let avg = sum / dataArray.length;
+
+        let db = Math.round((avg / 255) * 100 * 1.5);
+        db = Math.min(db, 100);
+
+        document.getElementById('dbNum').innerText = db;
+        chart.data.datasets[0].data.push(db);
+        chart.data.datasets[0].data.shift();
+        chart.update();
+
+        if (db >= 10 && !isTriggered) {
+            triggerRobotSequence();
+        }
+
+        if (isMonitoring && !isTriggered) {
+            animationId = requestAnimationFrame(monitorAudio);
+        }
+    }
+
+    function triggerRobotSequence() {
+        isTriggered = true;
+        setStatus('warning', '10 dB NOISE DETECTED! ACTIVATING AI');
+
+        const alertText = "कृपया शांत रहें। एम. के. वैश रोबोट एक्टिवेट हो गया है।";
+
+        speakLoudVoice(alertText, () => {
+            currentQObj = getRandomQuestion();
+            
+            document.getElementById('subjTag').innerText = currentQObj.sub;
+            document.getElementById('qBox').innerText = currentQObj.q;
+            
+            document.getElementById('optA').innerText = currentQObj.opts.A;
+            document.getElementById('optB').innerText = currentQObj.opts.B;
+            document.getElementById('optC').innerText = currentQObj.opts.C;
+            document.getElementById('optD').innerText = currentQObj.opts.D;
+            document.getElementById('optionsContainer').style.display = 'grid';
+
+            document.getElementById('userAnswerText').innerText = "बोलिए option A, B, C या D...";
+
+            const optionsSpeech = `${currentQObj.q}। ऑप्शन ए: ${currentQObj.opts.A}, ऑप्शन बी: ${currentQObj.opts.B}, ऑप्शन सी: ${currentQObj.opts.C}, ऑप्शन डी: ${currentQObj.opts.D}`;
+
+            speakLoudVoice(optionsSpeech, () => {
+                if (recognition) try { recognition.start(); } catch(e){}
+                runTimer(45);
+            });
+        });
+    }
+
+    function checkOptionVoice(inputText) {
+        if (!currentQObj || !isTriggered) return;
+        let text = inputText.toLowerCase().trim();
+        
+        let detectedOpt = null;
+        if (text.includes("a") || text.includes("ए") || text.includes("option a") || text.includes("ऑप्शन ए")) detectedOpt = "A";
+        else if (text.includes("b") || text.includes("बी") || text.includes("option b") || text.includes("ऑप्शन बी")) detectedOpt = "B";
+        else if (text.includes("c") || text.includes("सी") || text.includes("option c") || text.includes("ऑप्शन सी")) detectedOpt = "C";
+        else if (text.includes("d") || text.includes("डी") || text.includes("option d") || text.includes("ऑप्शन डी")) detectedOpt = "D";
+
+        if (detectedOpt) submitOption(detectedOpt);
+    }
+
+    function submitOption(selectedOpt) {
+        if (!currentQObj || !isTriggered) return;
+
+        clearInterval(timerInt);
+        if (recognition) try { recognition.stop(); } catch(e){}
+
+        if (selectedOpt === currentQObj.correct) {
+            const correctMsg = `शाबाश! बिल्कुल सही जवाब। ऑप्शन ${selectedOpt} सही है।`;
+            document.getElementById('qBox').innerText = "✅ " + correctMsg;
+            speakLoudVoice(correctMsg, () => resetToMonitoring());
+        } else {
+            const wrongMsg = `गलत जवाब! सही उत्तर है ऑप्शन ${currentQObj.correct}: ${currentQObj.opts[currentQObj.correct]}`;
+            document.getElementById('qBox').innerText = "❌ " + wrongMsg;
+            speakLoudVoice(wrongMsg, () => resetToMonitoring());
+        }
+    }
+
+    function submitManualAnswer() {
+        const val = document.getElementById('textAnswerInput').value.trim().toUpperCase();
+        if (["A", "B", "C", "D"].includes(val)) {
+            submitOption(val);
+            document.getElementById('textAnswerInput').value = '';
+        } else {
+            alert("कृपया केवल A, B, C या D टाइप करें!");
+        }
+    }
+
+    function handleWrongOrTimeout() {
+        if (recognition) try { recognition.stop(); } catch(e){}
+        const timeoutMsg = `समय समाप्त! सही उत्तर था ऑप्शन ${currentQObj.correct}: ${currentQObj.opts[currentQObj.correct]}`;
+        document.getElementById('qBox').innerText = "❌ " + timeoutMsg;
+        speakLoudVoice(timeoutMsg, () => resetToMonitoring());
+    }
+
+    // Bluetooth Audio Compatible Speech Function
+    function speakLoudVoice(text, callback) {
+        window.speechSynthesis.cancel();
+        
+        // 200ms Delay to route audio buffer smoothly to Bluetooth output
+        setTimeout(() => {
+            const utt = new SpeechSynthesisUtterance(text);
+            utt.lang = 'hi-IN'; 
+            utt.rate = 0.95; // Slightly slower for clarity over Bluetooth speakers
+            utt.pitch = 1.0; 
+            utt.volume = 1.0;
+
+            const voices = window.speechSynthesis.getVoices();
+            const selectedVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('IN'));
+            if (selectedVoice) utt.voice = selectedVoice;
+
+            utt.onend = () => { if (callback) callback(); };
+            utt.onerror = (e) => { 
+                console.error("Speech Error:", e);
+                if (callback) callback(); 
+            };
+
+            window.speechSynthesis.speak(utt);
+        }, 200);
+    }
+
+    function runTimer(sec) {
+        let t = sec;
+        document.getElementById('timer').innerText = t;
+        timerInt = setInterval(() => {
+            t--;
+            document.getElementById('timer').innerText = t;
+            if (t <= 0) {
+                clearInterval(timerInt);
+                handleWrongOrTimeout();
+            }
+        }, 1000);
+    }
+
+    function resetToMonitoring() {
+        document.getElementById('optionsContainer').style.display = 'none';
+        setTimeout(() => {
+            isTriggered = false; currentQObj = null;
+            document.getElementById('timer').innerText = "45";
+            if (isMonitoring) {
+                setStatus('active', 'MONITORING: ACTIVE');
+                monitorAudio();
+            }
+        }, 2000);
+    }
+
+    function setStatus(state, text) {
+        const dot = document.getElementById('statusDot');
+        const lbl = document.getElementById('statusLabel');
+        dot.className = "dot";
+        if (state === 'active') dot.classList.add('active');
+        if (state === 'warning') dot.classList.add('warning');
+        lbl.innerText = text;
+    }
+
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+</script>
+
+</body>
+</html>
